@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Query Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* CSS Variables for Design System */
+        :root {
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+            --primary-900: #1e3a8a;
+            
+            --success-50: #f0fdf4;
+            --success-100: #dcfce7;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+            
+            --warning-50: #fffbeb;
+            --warning-100: #fef3c7;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+            
+            --danger-50: #fef2f2;
+            --danger-100: #fee2e2;
+            --danger-500: #ef4444;
+            --danger-600: #dc2626;
+            
+            --neutral-50: #f9fafb;
+            --neutral-100: #f3f4f6;
+            --neutral-200: #e5e7eb;
+            --neutral-300: #d1d5db;
+            --neutral-400: #9ca3af;
+            --neutral-500: #6b7280;
+            --neutral-600: #4b5563;
+            --neutral-700: #374151;
+            --neutral-800: #1f2937;
+            --neutral-900: #111827;
+            
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-danger: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+            --gradient-mysql: linear-gradient(135deg, #2196f3 0%, #21cbf3 100%);
+            --gradient-postgres: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+            --gradient-mongo: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            
+            --border-radius-sm: 6px;
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+            --border-radius-xl: 16px;
+            
+            --transition-fast: all 0.2s ease;
+            --transition-normal: all 0.3s ease;
+        }
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #282828 0%, #1f1f1f 100%);
+            min-height: 100vh;
+            color: var(--neutral-800);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            z-index: 1000;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(40, 40, 40, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: var(--border-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Card Component */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition-normal);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem 1rem;
+            border-bottom: 1px solid var(--neutral-100);
+            position: relative;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .mysql-card .card-header::before {
+            background: var(--gradient-mysql);
+        }
+
+        .postgres-card .card-header::before {
+            background: var(--gradient-postgres);
+        }
+
+        .mongo-card .card-header::before {
+            background: var(--gradient-mongo);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title i {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--border-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .mysql-card .card-title i {
+            background: var(--gradient-mysql);
+        }
+
+        .postgres-card .card-title i {
+            background: var(--gradient-postgres);
+        }
+
+        .mongo-card .card-title i {
+            background: var(--gradient-mongo);
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: var(--neutral-500);
+            margin-top: 0.25rem;
+        }
+
+        .card-content {
+            padding: 1.5rem 2rem 2rem;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--neutral-700);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-label i {
+            color: var(--neutral-500);
+            font-size: 0.75rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--border-radius-md);
+            font-size: 0.875rem;
+            transition: var(--transition-normal);
+            background: white;
+            color: var(--neutral-900);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-input:hover {
+            border-color: var(--neutral-400);
+        }
+
+        .form-input::placeholder {
+            color: var(--neutral-400);
+        }
+
+        /* Textarea for queries */
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--neutral-300);
+            border-radius: var(--border-radius-md);
+            font-size: 0.875rem;
+            transition: var(--transition-normal);
+            background: white;
+            color: var(--neutral-900);
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius-md);
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            font-size: 0.875rem;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-mysql {
+            background: var(--gradient-mysql);
+            color: white;
+        }
+
+        .btn-postgres {
+            background: var(--gradient-postgres);
+            color: white;
+        }
+
+        .btn-mongo {
+            background: var(--gradient-mongo);
+            color: white;
+        }
+
+        /* Form Row for smaller inputs */
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        /* Connection Status Indicator */
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--neutral-500);
+            margin-top: 0.5rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--neutral-400);
+        }
+
+        .status-indicator.connected {
+            background: var(--success-500);
+        }
+
+        .status-indicator.disconnected {
+            background: var(--danger-500);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header-content {
+                padding: 0 1rem;
+            }
+            
+            .card-content {
+                padding: 1rem;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .mt-2 {
+            margin-top: 1rem;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="logo-text">Database Query Interface</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="form-grid">
+            <!-- MySQL Section -->
+            <div class="card mysql-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-server"></i>
+                        MySQL Database
+                    </h2>
+                    <p class="card-subtitle">Connect and query your MySQL database</p>
+                </div>
+                <div class="card-content">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Username
+                                </label>
+                                <input type="text" name="mysql_username" class="form-input" placeholder="Enter username">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-lock"></i>
+                                    Password
+                                </label>
+                                <input type="password" name="mysql_password" class="form-input" placeholder="Enter password">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-globe"></i>
+                                    Server Address
+                                </label>
+                                <input type="text" name="mysql_server" class="form-input" placeholder="localhost:3306">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-database"></i>
+                                    Database Name
+                                </label>
+                                <input type="text" name="mysql_collection" class="form-input" placeholder="database_name">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-code"></i>
+                                SQL Query
+                            </label>
+                            <textarea name="mysql_query" class="form-textarea" placeholder="SELECT * FROM table_name;"></textarea>
+                        </div>
+
+                        <div class="connection-status">
+                            <div class="status-indicator disconnected"></div>
+                            <span>Not connected</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-mysql">
+                            <i class="fas fa-play"></i>
+                            Execute Query
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- PostgreSQL Section -->
+            <div class="card postgres-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-elephant"></i>
+                        PostgreSQL Database
+                    </h2>
+                    <p class="card-subtitle">Connect and query your PostgreSQL database</p>
+                </div>
+                <div class="card-content">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Username
+                                </label>
+                                <input type="text" name="postgres_username" class="form-input" placeholder="Enter username">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-lock"></i>
+                                    Password
+                                </label>
+                                <input type="password" name="postgres_password" class="form-input" placeholder="Enter password">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-globe"></i>
+                                    Server Address
+                                </label>
+                                <input type="text" name="postgres_server" class="form-input" placeholder="localhost:5432">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-database"></i>
+                                    Database Name
+                                </label>
+                                <input type="text" name="postgres_collection" class="form-input" placeholder="database_name">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-code"></i>
+                                SQL Query
+                            </label>
+                            <textarea name="postgres_query" class="form-textarea" placeholder="SELECT * FROM table_name;"></textarea>
+                        </div>
+
+                        <div class="connection-status">
+                            <div class="status-indicator disconnected"></div>
+                            <span>Not connected</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-postgres">
+                            <i class="fas fa-play"></i>
+                            Execute Query
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- MongoDB Section -->
+            <div class="card mongo-card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <i class="fas fa-leaf"></i>
+                        MongoDB Database
+                    </h2>
+                    <p class="card-subtitle">Connect and query your MongoDB database</p>
+                </div>
+                <div class="card-content">
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i>
+                                    Username
+                                </label>
+                                <input type="text" name="mongo_username" class="form-input" placeholder="Enter username">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-lock"></i>
+                                    Password
+                                </label>
+                                <input type="password" name="mongo_password" class="form-input" placeholder="Enter password">
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-globe"></i>
+                                    Server Address
+                                </label>
+                                <input type="text" name="mongo_server" class="form-input" placeholder="mongodb://localhost:27017">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-folder"></i>
+                                    Collection Name
+                                </label>
+                                <input type="text" name="mongo_collection" class="form-input" placeholder="collection_name">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-code"></i>
+                                MongoDB Query
+                            </label>
+                            <textarea name="mongo_query" class="form-textarea" placeholder='db.collection.find({});'></textarea>
+                        </div>
+
+                        <div class="connection-status">
+                            <div class="status-indicator disconnected"></div>
+                            <span>Not connected</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-mongo">
+                            <i class="fas fa-play"></i>
+                            Execute Query
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add form submission handling
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const button = this.querySelector('.btn');
+                const originalText = button.innerHTML;
+                
+                // Show loading state
+                button.innerHTML = '<div class="loading"></div> Executing...';
+                button.disabled = true;
+                
+                // Simulate query execution
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                    
+                    // Update connection status
+                    const statusIndicator = this.querySelector('.status-indicator');
+                    const statusText = this.querySelector('.connection-status span');
+                    statusIndicator.classList.remove('disconnected');
+                    statusIndicator.classList.add('connected');
+                    statusText.textContent = 'Connected';
+                }, 2000);
+            });
+        });
+
+        // Add input validation
+        document.querySelectorAll('.form-input, .form-textarea').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.style.borderColor = 'var(--danger-500)';
+                } else {
+                    this.style.borderColor = 'var(--success-500)';
+                }
+            });
+            
+            input.addEventListener('focus', function() {
+                this.style.borderColor = 'var(--primary-500)';
+            });
+        });
+    </script>
+</body>
+</html>

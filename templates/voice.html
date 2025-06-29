@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CommentLens Voice Assistant</title>
+    <!-- Replace with actual Omnidimension SDK URL -->
+    <script src="https://cdn.omnidimension.com/sdk.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #status {
+            margin-top: 20px;
+            color: #333;
+            max-width: 600px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>CommentLens Voice Assistant</h1>
+    <button id="start-voice">Start Voice Assistant</button>
+    <div id="status">Waiting for voice input...</div>
+    <script>
+        // Initialize Omnidimension with agent ID from Flask
+        const agentId = "{{ agent_id | safe }}";
+        let omni;
+        try {
+            omni = new Omnidimension(agentId);
+        } catch (error) {
+            document.getElementById('status').innerText = 'Failed to initialize voice assistant. Please check console.';
+            console.error('Omnidimension SDK error:', error);
+        }
+
+        document.getElementById('start-voice').addEventListener('click', () => {
+            if (!omni) {
+                document.getElementById('status').innerText = 'Voice assistant not available.';
+                return;
+            }
+            document.getElementById('status').innerText = 'Listening...';
+            omni.startConversation({
+                onTranscription: async (text) => {
+                    console.log('Transcribed text:', text);
+                    try {
+                        const response = await fetch('/voice_analyze', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ transcribed_text: text })
+                        });
+                        const data = await response.json();
+                        if (data.error) {
+                            document.getElementById('status').innerText = data.error;
+                            if (data.prompt) {
+                                omni.speak(data.prompt);
+                            } else {
+                                omni.speak(data.error);
+                            }
+                            if (data.redirect) {
+                                window.location.href = data.redirect;
+                            }
+                        } else {
+                            document.getElementById('status').innerText = data.summary;
+                            omni.speak(data.summary);
+                        }
+                    } catch (error) {
+                        document.getElementById('status').innerText = 'Error processing voice input.';
+                        omni.speak('Sorry, an error occurred. Please try again.');
+                        console.error('Fetch error:', error);
+                    }
+                },
+                onError: (error) => {
+                    document.getElementById('status').innerText = 'Voice assistant error: ' + error.message;
+                    console.error('Omnidimension error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

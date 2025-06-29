@@ -1,762 +1,1068 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>YouTube Comments Analysis</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Comments Analysis Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-       
-
-/* Base styles and variables */
-:root {
-    --primary: #4f46e5;
-    --primary-light: #e0e7ff;
-    --positive: #10b981;
-    --positive-light: #d1fae5;
-    --negative: #ef4444;
-    --negative-light: #fee2e2;
-    --neutral: #6b7280;
-    --neutral-light: #f3f4f6;
-    --question: #3b82f6;
-    --question-light: #dbeafe;
-    --abusive: #f97316;
-    --abusive-light: #ffedd5;
-    --border-radius: 12px;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --transition: all 0.3s ease;
-}
-
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-/* Base styles */
-body {
-    font-family: 'Inter', sans-serif;
-    background-color: #f9fafb;
-    color: #1f2937;
-    line-height: 1.5;
-    padding: 0;
-    margin: 0;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-}
-
-/* Typography */
-h1, h2, h3 {
-    margin-top: 0;
-    color: #111827;
-}
-
-h1 {
-    font-size: 2.25rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    text-align: center;
-}
-
-h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #f3f4f6;
-    padding-bottom: 0.5rem;
-}
-
-h3 {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-}
-
-p {
-    color: #4b5563;
-    margin-bottom: 1rem;
-}
-
-/* Section styling */
-.section {
-    background-color: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--shadow);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    transition: var(--transition);
-    animation: fadeIn 0.6s ease-out;
-}
-
-.section:hover {
-    box-shadow: var(--shadow-hover);
-    transform: translateY(-2px);
-}
-
-/* Error section */
-.error {
-    background-color: var(--negative-light);
-    border-left: 4px solid var(--negative);
-    text-align: center;
-}
-
-/* Comment groups */
-.comment-group {
-    margin: 1.5rem 0;
-}
-
-.comment-heading {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    color: #111827;
-    font-weight: 600;
-}
-
-/* Comment items */
-.comment-item {
-    margin: 0.75rem 0;
-    padding: 1rem;
-    border-radius: 8px;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    transition: var(--transition);
-    background-color: #f9fafb;
-}
-
-.comment-item:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
-}
-
-/* Comment type styling */
-.comment-group:has(.comment-heading:contains("Positive")) .comment-item {
-    background-color: var(--positive-light);
-    border-left: 3px solid var(--positive);
-}
-
-.comment-group:has(.comment-heading:contains("Negative")) .comment-item {
-    background-color: var(--negative-light);
-    border-left: 3px solid var(--negative);
-}
-
-.comment-group:has(.comment-heading:contains("Neutral")) .comment-item {
-    background-color: var(--neutral-light);
-    border-left: 3px solid var(--neutral);
-}
-
-.comment-group:has(.comment-heading:contains("Question")) .comment-item {
-    background-color: var(--question-light);
-    border-left: 3px solid var(--question);
-}
-
-.comment-group:has(.comment-heading:contains("Abusive")) .comment-item {
-    background-color: var(--abusive-light);
-    border-left: 3px solid var(--abusive);
-}
-
-.comment-text {
-    flex-grow: 1;
-    margin-right: 1rem;
-    line-height: 1.5;
-}
-
-/* Buttons */
-.comment-button {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    color: white;
-    font-weight: 500;
-    text-decoration: none;
-    display: inline-block;
-    transition: var(--transition);
-    font-size: 0.875rem;
-}
-
-.delete-button {
-    background-color: var(--negative);
-}
-
-.delete-button:hover {
-    background-color: #dc2626;
-    transform: translateY(-2px);
-}
-
-.answer-button {
-    background-color: var(--question);
-}
-
-.answer-button:hover {
-    background-color: #2563eb;
-    transform: translateY(-2px);
-}
-
-.back-button {
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background-color: var(--primary);
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: 500;
-    transition: var(--transition);
-    margin-top: 1rem;
-}
-
-.back-button:hover {
-    background-color: #4338ca;
-    transform: translateY(-2px);
-}
-
-/* Alerts, sentiments, and percentages */
-.alerts, .sentiments, .sentiment-percentages {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.alert-box, .sentiment-box, .percentage-box {
-    flex: 1;
-    min-width: 150px;
-    padding: 1.25rem;
-    border-radius: 8px;
-    text-align: center;
-    transition: var(--transition);
-}
-
-.alert-box:hover, .sentiment-box:hover, .percentage-box:hover {
-    transform: translateY(-3px);
-    box-shadow: var(--shadow);
-}
-
-/* Alert boxes */
-.alert-box {
-    background-color: #f9fafb;
-    border: 1px solid #e5e7eb;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.alert-box h3 {
-    margin-bottom: 0.5rem;
-}
-
-.alert-box p {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0.5rem 0;
-    color: var(--primary);
-}
-
-/* Sentiment boxes */
-.sentiment-box {
-    background-color: #f9fafb;
-    border: 1px solid #e5e7eb;
-}
-
-.sentiment-box h3 {
-    margin-bottom: 0.5rem;
-}
-
-.sentiment-box p {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0.5rem 0;
-    color: var(--primary);
-}
-
-/* Percentage boxes */
-.percentage-box {
-    background-color: #f9fafb;
-    border: 1px solid #e5e7eb;
-}
-
-.percentage-box h3 {
-    margin-bottom: 0.5rem;
-}
-
-.percentage-box p {
-    font-size: 2rem;
-    font-weight: 700;
-    margin: 0.5rem 0;
-    color: var(--primary);
-}
-
-/* Sentiment-specific styling */
-.sentiments .sentiment-box:nth-child(1), 
-.sentiment-percentages .percentage-box:nth-child(1) {
-    background-color: var(--positive-light);
-    border-color: var(--positive);
-}
-
-.sentiments .sentiment-box:nth-child(1) p, 
-.sentiment-percentages .percentage-box:nth-child(1) p {
-    color: var(--positive);
-}
-
-.sentiments .sentiment-box:nth-child(2), 
-.sentiment-percentages .percentage-box:nth-child(2) {
-    background-color: var(--negative-light);
-    border-color: var(--negative);
-}
-
-.sentiments .sentiment-box:nth-child(2) p, 
-.sentiment-percentages .percentage-box:nth-child(2) p {
-    color: var(--negative);
-}
-
-.sentiments .sentiment-box:nth-child(3), 
-.sentiment-percentages .percentage-box:nth-child(3) {
-    background-color: var(--neutral-light);
-    border-color: var(--neutral);
-}
-
-.sentiments .sentiment-box:nth-child(3) p, 
-.sentiment-percentages .percentage-box:nth-child(3) p {
-    color: var(--neutral);
-}
-
-.sentiments .sentiment-box:nth-child(4), 
-.sentiment-percentages .percentage-box:nth-child(4) {
-    background-color: var(--question-light);
-    border-color: var(--question);
-}
-
-.sentiments .sentiment-box:nth-child(4) p, 
-.sentiment-percentages .percentage-box:nth-child(4) p {
-    color: var(--question);
-}
-
-.sentiments .sentiment-box:nth-child(5), 
-.sentiment-percentages .percentage-box:nth-child(5) {
-    background-color: var(--abusive-light);
-    border-color: var(--abusive);
-}
-
-.sentiments .sentiment-box:nth-child(5) p, 
-.sentiment-percentages .percentage-box:nth-child(5) p {
-    color: var(--abusive);
-}
-
-/* Table styling */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-    background-color: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-th, td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-}
-
-th {
-    background-color: #f9fafb;
-    font-weight: 600;
-    color: #374151;
-    border-bottom: 1px solid #e5e7eb;
-}
-
-tr:hover {
-    background-color: #f9fafb;
-}
-
-td {
-    border-bottom: 1px solid #e5e7eb;
-}
-
-tr:last-child td {
-    border-bottom: none;
-}
-
-/* Word count styling */
-td:nth-child(2) {
-    text-align: center;
-}
-
-td:nth-child(2) {
-    font-weight: 600;
-    color: var(--primary);
-}
-
-/* Chart container */
-.chart-container {
-    width: 100%;
-    max-width: 600px;
-    height: 400px;
-    margin: 0 auto;
-}
-
-/* Debug section (hidden) */
-.debug-section {
-    display: none;
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.section {
-    animation: fadeIn 0.5s ease-out;
-}
-
-.section:nth-child(2) {
-    animation-delay: 0.1s;
-}
-
-.section:nth-child(3) {
-    animation-delay: 0.2s;
-}
-
-.section:nth-child(4) {
-    animation-delay: 0.3s;
-}
-
-.section:nth-child(5) {
-    animation-delay: 0.4s;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .alerts, .sentiments, .sentiment-percentages {
-        flex-direction: column;
-    }
-    
-    .alert-box, .sentiment-box, .percentage-box {
-        width: 100%;
-        margin-bottom: 1rem;
-    }
-    
-    h1 {
-        font-size: 1.75rem;
-    }
-    
-    .section {
-        padding: 1rem;
-    }
-}
+        /* CSS Variables for Design System */
+        :root {
+            --primary-50: #eff6ff;
+            --primary-100: #dbeafe;
+            --primary-500: #3b82f6;
+            --primary-600: #2563eb;
+            --primary-700: #1d4ed8;
+            --primary-900: #1e3a8a;
+            
+            --success-50: #f0fdf4;
+            --success-100: #dcfce7;
+            --success-500: #22c55e;
+            --success-600: #16a34a;
+            
+            --warning-50: #fffbeb;
+            --warning-100: #fef3c7;
+            --warning-500: #f59e0b;
+            --warning-600: #d97706;
+            
+            --danger-50: #fef2f2;
+            --danger-100: #fee2e2;
+            --danger-500: #ef4444;
+            --danger-600: #dc2626;
+            
+            --neutral-50: #f9fafb;
+            --neutral-100: #f3f4f6;
+            --neutral-200: #e5e7eb;
+            --neutral-300: #d1d5db;
+            --neutral-400: #9ca3af;
+            --neutral-500: #6b7280;
+            --neutral-600: #4b5563;
+            --neutral-700: #374151;
+            --neutral-800: #1f2937;
+            --neutral-900: #111827;
+            
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --gradient-warning: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            --gradient-danger: linear-gradient(135deg, #ff6b6b 0%, #ffa726 100%);
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            
+            --border-radius-sm: 6px;
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+            --border-radius-xl: 16px;
+            
+            --transition-fast: all 0.2s ease;
+            --transition-normal: all 0.3s ease;
+        }
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #282828 0%, #1f1f1f 100%);
+            min-height: 100vh;
+            color: var(--neutral-800);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FF0000, #FF5252);
+            z-index: 1000;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(40, 40, 40, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: var(--border-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .header-stat {
+            text-align: center;
+        }
+
+        .header-stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .header-stat-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        /* Card Component */
+        .card {
+            margin-bottom: 3rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition-normal);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
+
+        .card-header {
+            padding: 1.5rem 2rem 1rem;
+            border-bottom: 1px solid var(--neutral-100);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .card-title i {
+            color: var(--primary-500);
+        }
+
+        .card-subtitle {
+            font-size: 0.875rem;
+            color: var(--neutral-500);
+            margin-top: 0.25rem;
+        }
+
+        .card-content {
+            padding: 1.5rem 2rem 2rem;
+        }
+
+        /* Error Section */
+        .error-card {
+            background: linear-gradient(135deg, var(--danger-50) 0%, var(--danger-100) 100%);
+            border: 1px solid var(--danger-200);
+        }
+
+        .error-content {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .error-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-danger);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 2rem;
+        }
+
+        .error-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--danger-600);
+            margin-bottom: 0.5rem;
+        }
+
+        .error-message {
+            color: var(--danger-500);
+            margin-bottom: 2rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            margin-bottom: 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-lg);
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .stat-card.positive::before {
+            background: var(--gradient-success);
+        }
+
+        .stat-card.negative::before {
+            background: var(--gradient-danger);
+        }
+
+        .stat-card.warning::before {
+            background: var(--gradient-warning);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--neutral-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.125rem;
+        }
+
+        .stat-icon.primary {
+            background: var(--gradient-primary);
+        }
+
+        .stat-icon.success {
+            background: var(--gradient-success);
+        }
+
+        .stat-icon.danger {
+            background: var(--gradient-danger);
+        }
+
+        .stat-icon.warning {
+            background: var(--gradient-warning);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--neutral-900);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success-600);
+        }
+
+        .stat-change.negative {
+            color: var(--danger-600);
+        }
+
+        /* Chart Section - Fixed Layout */
+        .chart-section {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-xl);
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-lg);
+            flex: 1;
+            min-width: 400px;
+            height: 400px;
+            position: relative;
+        }
+
+        .chart-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            min-width: 250px;
+            flex-shrink: 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-lg);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-md);
+            transition: var(--transition-normal);
+        }
+
+        .legend-item:hover {
+            transform: translateX(5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .legend-label {
+            font-weight: 500;
+            color: var(--neutral-700);
+        }
+
+        .legend-value {
+            margin-left: auto;
+            font-weight: 600;
+            color: var(--neutral-900);
+        }
+
+        /* Comments Section */
+        .comments-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .comment-group {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .comment-group-header {
+            padding: 1.5rem 2rem;
+            background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+            border-bottom: 1px solid var(--neutral-200);
+        }
+
+        .comment-group-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--neutral-900);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .comment-group.positive .comment-group-header {
+            background: linear-gradient(135deg, var(--success-50) 0%, var(--success-100) 100%);
+        }
+
+        .comment-group.negative .comment-group-header {
+            background: linear-gradient(135deg, var(--danger-50) 0%, var(--danger-100) 100%);
+        }
+
+        .comment-group.warning .comment-group-header {
+            background: linear-gradient(135deg, var(--warning-50) 0%, var(--warning-100) 100%);
+        }
+
+        .comment-item {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--neutral-100);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            transition: var(--transition-normal);
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+        }
+
+        .comment-item:hover {
+            background: var(--neutral-50);
+        }
+
+        .comment-number {
+            width: 32px;
+            height: 32px;
+            background: var(--gradient-primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .comment-content {
+            flex: 1;
+        }
+
+        .comment-text {
+            color: var(--neutral-700);
+            line-height: 1.6;
+            margin-bottom: 0.5rem;
+        }
+
+        .comment-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: var(--neutral-500);
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius-md);
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition-normal);
+            font-size: 0.875rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-danger {
+            background: var(--gradient-danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-warning {
+            background: var(--gradient-warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+        }
+
+        /* Table */
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-xl);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th {
+            background: linear-gradient(135deg, var(--neutral-50) 0%, var(--neutral-100) 100%);
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--neutral-700);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table td {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--neutral-100);
+            color: var(--neutral-700);
+        }
+
+        .table tr:hover {
+            background: var(--neutral-50);
+        }
+
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .chart-section {
+                flex-direction: column;
+            }
+            
+            .chart-container {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .chart-legend {
+                flex-direction: row;
+                flex-wrap: wrap;
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header-content {
+                padding: 0 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .header-stats {
+                gap: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-content {
+                padding: 1rem;
+            }
+            
+            .comment-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .comment-actions {
+                justify-content: flex-end;
+            }
+
+            .chart-legend {
+                flex-direction: column;
+            }
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-0 {
+            margin-bottom: 0;
+        }
+
+        .mt-2 {
+            margin-top: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <h1>YouTube Comments Analysis</h1>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fab fa-youtube"></i>
+                </div>
+                <div class="logo-text">YouTube Analytics</div>
+            </div>
+            <div class="header-stats">
+                <div class="header-stat">
+                    <div class="header-stat-value" id="totalComments">0</div>
+                    <div class="header-stat-label">Total Comments</div>
+                </div>
+                <div class="header-stat">
+                    <div class="header-stat-value" id="analysisTime">--</div>
+                    <div class="header-stat-label">Analysis Time</div>
+                </div>
+            </div>
+        </div>
+    </header>
 
-    {% if error %}
-    <div class="section error">
-        <p>Error: {{ error | escape }}</p>
-        <p>Please try a different video or check your API quota.</p>
-        <a href="{{ url_for('youtube') }}" class="back-button">Back to Analysis</a>
-    </div>
-    {% elif summary != "No comments available for this video." %}
-    <div class="section">
-        <p>Analyzed {{ question_count + abusive_count + sentiments.positive + sentiments.negative + sentiments.neutral }} comments (up to 500 comments processed).</p>
-    </div>
-    {% endif %}
+    <div class="container">
+        <!-- Error Section -->
+        {% if error %}
+        <div class="card error-card">
+            <div class="error-content">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 class="error-title">Analysis Error</h2>
+                <p class="error-message">{{ error | escape }}</p>
+                <p class="error-message">Please try a different video or check your API quota.</p>
+                <a href="{{ url_for('youtube') }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Analysis
+                </a>
+            </div>
+        </div>
+        {% elif summary != "No comments available for this video." %}
+        
+        <!-- Overview Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Total Comments</div>
+                    <div class="stat-icon primary">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ question_count + abusive_count + sentiments.positive + sentiments.negative + sentiments.neutral }}</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-arrow-up"></i>
+                    Up to 500 processed
+                </div>
+            </div>
+            
+            <div class="stat-card warning">
+                <div class="stat-header">
+                    <div class="stat-title">Abusive Comments</div>
+                    <div class="stat-icon danger">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ abusive_count }}</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-shield-alt"></i>
+                    Requires attention
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-title">Questions</div>
+                    <div class="stat-icon warning">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ question_count }}</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-reply"></i>
+                    Engagement opportunity
+                </div>
+            </div>
+            
+            <div class="stat-card positive">
+                <div class="stat-header">
+                    <div class="stat-title">Positive Sentiment</div>
+                    <div class="stat-icon success">
+                        <i class="fas fa-thumbs-up"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ sentiment_percentages.positive | round(1) }}%</div>
+                <div class="stat-change positive">
+                    <i class="fas fa-heart"></i>
+                    Great engagement
+                </div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-header">
+                    <div class="stat-title">Spam Comments</div>
+                    <div class="stat-icon danger">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                </div>
+                <div class="stat-value">{{ spam_count }}</div>
+                <div class="stat-change negative">
+                    <i class="fas fa-filter"></i>
+                    Filtered content
+                </div>
+            </div>
+        </div>
 
-    <div class="section">
-        <h2>Key Comments</h2>
-        <p>Note: Up to 500 comments are analyzed for consistency and performance.</p>
-        {% if comment_data %}
-        {% set comment_types = ['abusive', 'question', 'positive', 'negative', 'neutral'] %}
-        {% for type in comment_types %}
-        {% set type_comments = comment_data | selectattr('type', 'equalto', type) | list %}
-        {% if type_comments %}
-        <div class="comment-group">
-            {% if type == 'abusive' %}
-                <h3 class="comment-heading">{{ 'Top Abusive Comments:' if type_comments[0].comment_id or type_comments[0].number else 'There are no abusive comments.' }}</h3>
-            {% elif type == 'question' %}
-                <h3 class="comment-heading">{{ 'Top Question Comments:' if type_comments[0].comment_id or type_comments[0].number else 'There are no question comments.' }}</h3>
-            {% elif type == 'positive' %}
-                <h3 class="comment-heading">{{ 'Top Positive Comments:' if type_comments[0].number else 'There are no positive comments.' }}</h3>
-            {% elif type == 'negative' %}
-                <h3 class="comment-heading">{{ 'Top Negative Comments:' if type_comments[0].number else 'There are no negative comments.' }}</h3>
-            {% elif type == 'neutral' %}
-                <h3 class="comment-heading">{{ 'Top Neutral Comments:' if type_comments[0].number else 'There are no neutral comments.' }}</h3>
-            {% endif %}
-            {% for comment in type_comments %}
-                {% if comment.number %}
-                <div class="comment-item">
-                    <span class="comment-text">{{ comment.number }}. {{ comment.text | escape }}</span>
-                    {% if comment.type == 'abusive' and comment.comment_id %}
-                        <a href="https://www.youtube.com/watch?v={{ video_id }}&lc={{ comment.comment_id }}" target="_blank" class="comment-button delete-button">Delete</a>
-                    {% elif comment.type == 'question' and comment.comment_id %}
-                        <a href="https://www.youtube.com/watch?v={{ video_id }}&lc={{ comment.comment_id }}" target="_blank" class="comment-button answer-button">Answer</a>
+        <!-- Sentiment Analysis -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Sentiment Distribution
+                </h2>
+                <p class="card-subtitle">Overall emotional tone of your audience</p>
+            </div>
+            <div class="card-content">
+                <div class="chart-section">
+                    <div class="chart-container">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #22c55e;"></div>
+                            <div class="legend-label">Positive</div>
+                            <div class="legend-value">{{ sentiment_percentages.positive | round(1) }}%</div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ef4444;"></div>
+                            <div class="legend-label">Negative</div>
+                            <div class="legend-value">{{ sentiment_percentages.negative | round(1) }}%</div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #6b7280;"></div>
+                            <div class="legend-label">Neutral</div>
+                            <div class="legend-value">{{ sentiment_percentages.neutral | round(1) }}%</div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #3b82f6;"></div>
+                            <div class="legend-label">Questions</div>
+                            <div class="legend-value">{{ sentiment_percentages.question | round(1) }}%</div>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #f59e0b;"></div>
+                            <div class="legend-label">Abusive</div>
+                            <div class="legend-value">{{ sentiment_percentages.abusive | round(1) }}%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Comments -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-star"></i>
+                    Key Comments Analysis
+                </h2>
+                <p class="card-subtitle">Important comments categorized by sentiment and type</p>
+            </div>
+            <div class="card-content">
+                {% if comment_data %}
+                <div class="comments-grid">
+                    {% set comment_types = ['abusive', 'question', 'positive', 'negative', 'neutral'] %}
+                    {% for type in comment_types %}
+                    {% set type_comments = comment_data | selectattr('type', 'equalto', type) | list %}
+                    {% if type_comments %}
+                    <div class="comment-group {{ type }}">
+                        <div class="comment-group-header">
+                            <h3 class="comment-group-title">
+                                {% if type == 'abusive' %}
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Abusive Comments
+                                {% elif type == 'question' %}
+                                    <i class="fas fa-question-circle"></i>
+                                    Question Comments
+                                {% elif type == 'positive' %}
+                                    <i class="fas fa-thumbs-up"></i>
+                                    Positive Comments
+                                {% elif type == 'negative' %}
+                                    <i class="fas fa-thumbs-down"></i>
+                                    Negative Comments
+                                {% elif type == 'neutral' %}
+                                    <i class="fas fa-minus-circle"></i>
+                                    Neutral Comments
+                                {% endif %}
+                            </h3>
+                        </div>
+                        {% for comment in type_comments %}
+                        {% if comment.number %}
+                        <div class="comment-item">
+                            <div class="comment-number">{{ comment.number }}</div>
+                            <div class="comment-content">
+                                <div class="comment-text">{{ comment.text | escape }}</div>
+                                <div class="comment-meta">
+                                    <span><i class="fas fa-tag"></i> {{ type.title() }}</span>
+                                    <span><i class="fas fa-clock"></i> Recently analyzed</span>
+                                </div>
+                            </div>
+                            <div class="comment-actions">
+                                {% if comment.type == 'abusive' and comment.comment_id %}
+                                    <a href="https://www.youtube.com/watch?v={{ video_id }}&lc={{ comment.comment_id }}" target="_blank" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                        Delete
+                                    </a>
+                                {% elif comment.type == 'question' and comment.comment_id %}
+                                    <a href="https://www.youtube.com/watch?v={{ video_id }}&lc={{ comment.comment_id }}" target="_blank" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-reply"></i>
+                                        Answer
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
                     {% endif %}
+                    {% endfor %}
                 </div>
                 {% else %}
-                <div class="comment-item">
-                    <span class="comment-text">{{ comment.text | escape }}</span>
+                <div class="text-center">
+                    <i class="fas fa-inbox" style="font-size: 3rem; color: var(--neutral-400); margin-bottom: 1rem;"></i>
+                    <p>No comments available to analyze.</p>
                 </div>
                 {% endif %}
-            {% endfor %}
+            </div>
+        </div>
+
+        <!-- Frequent Words -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <i class="fas fa-font"></i>
+                    Frequent Words Analysis
+                </h2>
+                <p class="card-subtitle">Most commonly used words in comments (excluding common terms)</p>
+            </div>
+            <div class="card-content">
+                {% if frequent_words %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-font"></i> Word</th>
+                                <th><i class="fas fa-chart-bar"></i> Count</th>
+                                <th><i class="fas fa-percentage"></i> Frequency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for word, count in frequent_words %}
+                            <tr>
+                                <td><strong>{{ word | escape }}</strong></td>
+                                <td>{{ count }}</td>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                        <div style="width: 100px; height: 8px; background: var(--neutral-200); border-radius: 4px; overflow: hidden;">
+                                            <div style="width: {{ (count / frequent_words[0][1] * 100) | round(1) }}%; height: 100%; background: var(--gradient-primary); border-radius: 4px;"></div>
+                                        </div>
+                                        <span>{{ (count / frequent_words[0][1] * 100) | round(1) }}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center">
+                    <i class="fas fa-search" style="font-size: 3rem; color: var(--neutral-400); margin-bottom: 1rem;"></i>
+                    <p>No significant words found in the comments.</p>
+                    <p class="card-subtitle">This may occur if comments are short, repetitive, or contain mostly URLs/emojis.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-2">
+            <a href="{{ url_for('youtube') }}" class="btn btn-primary">
+                <i class="fas fa-arrow-left"></i>
+                Back to Analysis
+            </a>
         </div>
         {% endif %}
-        {% endfor %}
-        {% else %}
-        <p>No comments available to summarize.</p>
-        {% endif %}
     </div>
 
-    <div class="section">
-        <h2>Alerts</h2>
-        <div class="alerts">
-            <div class="alert-box">
-                <h3>Abusive Comments</h3>
-                <p>{{ abusive_count }}</p>
-            </div>
-            <div class="alert-box">
-                <h3>Spam Comments</h3>
-                <p>{{ spam_count }}</p>
-            </div>
-            <div class="alert-box">
-                <h3>Question Comments</h3>
-                <p>{{ question_count }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="section">
-        <h2>Sentiment Counts</h2>
-        <div class="sentiments">
-            <div class="sentiment-box">
-                <h3>Positive</h3>
-                <p>{{ sentiments.positive }}</p>
-            </div>
-            <div class="sentiment-box">
-                <h3>Negative</h3>
-                <p>{{ sentiments.negative }}</p>
-            </div>
-            <div class="sentiment-box">
-                <h3>Neutral</h3>
-                <p>{{ sentiments.neutral }}</p>
-            </div>
-            <div class="sentiment-box">
-                <h3>Question</h3>
-                <p>{{ sentiments.question }}</p>
-            </div>
-            <div class="sentiment-box">
-                <h3>Abusive</h3>
-                <p>{{ sentiments.abusive }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="section">
-        <h2>Overall Sentiment</h2>
-        {% if plot_url %}
-        <img src="data:image/png;base64,{{ plot_url }}" alt="Sentiment Distribution Pie Chart" style="max-width: 100%;">
-        {% else %}
-        <p>No sentiment plot available due to insufficient data or an error.</p>
-        {% endif %}
-        <div class="sentiment-percentages">
-            <div class="percentage-box">
-                <h3>Positive</h3>
-                <p>{{ sentiment_percentages.positive | round(1) }}%</p>
-            </div>
-            <div class="percentage-box">
-                <h3>Negative</h3>
-                <p>{{ sentiment_percentages.negative | round(1) }}%</p>
-            </div>
-            <div class="percentage-box">
-                <h3>Neutral</h3>
-                <p>{{ sentiment_percentages.neutral | round(1) }}%</p>
-            </div>
-            <div class="percentage-box">
-                <h3>Question</h3>
-                <p>{{ sentiment_percentages.question | round(1) }}%</p>
-            </div>
-            <div class="percentage-box">
-                <h3>Abusive</h3>
-                <p>{{ sentiment_percentages.abusive | round(1) }}%</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="section">
-        <h2>Frequent Words</h2>
-        <p>Note: Shows frequently used words (excluding common English/Hindi terms like 'the', 'hai', and single letters).</p>
-        {% if frequent_words %}
-        <table>
-            <tr>
-                <th>Word</th>
-                <th>Count</th>
-            </tr>
-            {% for word, count in frequent_words %}
-            <tr>
-                <td>{{ word | escape }}</td>
-                <td>{{ count }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-        {% else %}
-        <p>No significant words found in the comments. This may occur if comments are short, repetitive, or contain mostly URLs/emojis. Please check the server logs for detailed debugging information.</p>
-        {% endif %}
-        <div class="debug-section">
-            <h3>Debug: Raw Frequent Words</h3>
-            <p>{{ frequent_words | tojson | escape }}</p>
-        </div>
-    </div>
-
-    <a href="{{ url_for('youtube') }}" class="back-button">Back to Analysis</a>
-
-
-      <script>
-   // Add this script before the closing </body> tag
-
-// Load Chart.js from CDN
-document.addEventListener('DOMContentLoaded', function() {
-    // Create a script element for Chart.js
-    var chartScript = document.createElement('script');
-    chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-    chartScript.onload = initializeChart;
-    document.head.appendChild(chartScript);
-    
-    // Add sentiment icons
-    addSentimentIcons();
-    
-    // Add animation classes
-    addAnimationClasses();
-});
-
-function initializeChart() {
-    // Check if we have sentiment data and a plot element
-    if (document.querySelector('.sentiment-percentages') && !document.getElementById('sentimentChart')) {
-        // Create canvas for the chart
-        var chartContainer = document.createElement('div');
-        chartContainer.className = 'chart-container';
-        
-        var canvas = document.createElement('canvas');
-        canvas.id = 'sentimentChart';
-        chartContainer.appendChild(canvas);
-        
-        // Find the section with sentiment percentages and insert chart before it
-        var sentimentSection = document.querySelector('.sentiment-percentages').closest('.section');
-        sentimentSection.insertBefore(chartContainer, sentimentSection.firstChild.nextSibling);
-        
-        // Get sentiment data
-        var sentimentBoxes = document.querySelectorAll('.sentiment-percentages .percentage-box');
-        var labels = [];
-        var data = [];
-        var backgroundColors = [
-            '#10b981', // positive - green
-            '#ef4444', // negative - red
-            '#6b7280', // neutral - gray
-            '#3b82f6', // question - blue
-            '#f97316'  // abusive - orange
-        ];
-        
-        sentimentBoxes.forEach(function(box, index) {
-            var label = box.querySelector('h3').textContent;
-            var value = parseFloat(box.querySelector('p').textContent);
-            labels.push(label);
-            data.push(value);
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Update header stats
+            updateHeaderStats();
+            
+            // Initialize chart
+            initializeSentimentChart();
         });
-        
-        // Create the chart
-        var ctx = document.getElementById('sentimentChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
+
+        function updateHeaderStats() {
+            const totalComments = {{ question_count + abusive_count + sentiments.positive + sentiments.negative + sentiments.neutral }};
+            const totalElement = document.getElementById('totalComments');
+            const timeElement = document.getElementById('analysisTime');
+            
+            // Set values directly without animation
+            totalElement.textContent = totalComments;
+            timeElement.textContent = new Date().toLocaleTimeString();
+        }
+
+        function initializeSentimentChart() {
+            const ctx = document.getElementById('sentimentChart');
+            if (!ctx) return;
+
+            const data = {
+                labels: ['Positive', 'Negative', 'Neutral', 'Questions', 'Abusive'],
                 datasets: [{
-                    data: data,
-                    backgroundColor: backgroundColors,
-                    borderColor: 'white',
-                    borderWidth: 2
+                    data: [
+                        {{ sentiment_percentages.positive | round(1) }},
+                        {{ sentiment_percentages.negative | round(1) }},
+                        {{ sentiment_percentages.neutral | round(1) }},
+                        {{ sentiment_percentages.question | round(1) }},
+                        {{ sentiment_percentages.abusive | round(1) }}
+                    ],
+                    backgroundColor: [
+                        '#22c55e',
+                        '#ef4444',
+                        '#6b7280',
+                        '#3b82f6',
+                        '#f59e0b'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 10
                 }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'right',
-                        labels: {
-                            padding: 20,
-                            font: {
-                                size: 14
+            };
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: 'white',
+                            bodyColor: 'white',
+                            borderColor: 'rgba(255, 255, 255, 0.1)',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.parsed}%`;
+                                }
                             }
                         }
                     },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                const label = context.label || '';
-                                const value = context.raw;
-                                return `${label}: ${value}%`;
-                            }
-                        }
-                    }
-                },
-                animation: {
-                    animateScale: true,
-                    animateRotate: true,
-                    duration: 1000,
-                    easing: 'easeOutQuart'
+                    animation: {
+                        duration: 0 // Disable chart animations
+                    },
+                    cutout: '60%'
                 }
-            }
-        });
-    }
-}
-
-function addSentimentIcons() {
-    // Add icons to sentiment boxes
-    var sentimentBoxes = document.querySelectorAll('.sentiments .sentiment-box');
-    var icons = ['👍', '👎', '😐', '❓', '⚠️'];
-    
-    sentimentBoxes.forEach(function(box, index) {
-        if (index < icons.length) {
-            var iconSpan = document.createElement('span');
-            iconSpan.style.fontSize = '2rem';
-            iconSpan.style.marginBottom = '0.5rem';
-            iconSpan.textContent = icons[index];
-            box.insertBefore(iconSpan, box.firstChild);
+            });
         }
-    });
-    
-    // Add icons to alert boxes
-    var alertBoxes = document.querySelectorAll('.alerts .alert-box');
-    var alertIcons = ['⚠️', '🚫', '❓'];
-    
-    alertBoxes.forEach(function(box, index) {
-        if (index < alertIcons.length) {
-            var iconSpan = document.createElement('span');
-            iconSpan.style.fontSize = '2rem';
-            iconSpan.style.marginBottom = '0.5rem';
-            iconSpan.textContent = alertIcons[index];
-            box.insertBefore(iconSpan, box.firstChild);
-        }
-    });
-}
-
-function addAnimationClasses() {
-    // Add animation delay to elements
-    var sections = document.querySelectorAll('.section');
-    sections.forEach(function(section, index) {
-        section.style.animationDelay = (index * 0.1) + 's';
-    });
-    
-    // Add animation to comment items
-    var commentItems = document.querySelectorAll('.comment-item');
-    commentItems.forEach(function(item, index) {
-        item.style.animationDelay = (index * 0.05) + 's';
-        item.style.animation = 'fadeIn 0.5s ease-out forwards';
-        item.style.opacity = '0';
-    });
-}
-  </script>
+    </script>
 </body>
 </html>

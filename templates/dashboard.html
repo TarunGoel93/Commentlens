@@ -43,15 +43,15 @@
         @keyframes pulse {
             0% {
                 transform: scale(1);
-                box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+                box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
             }
             50% {
                 transform: scale(1.03);
-                box-shadow: 0 6px 20px rgba(0, 123, 255, 0.5);
+                box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
             }
             100% {
                 transform: scale(1);
-                box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+                box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
             }
         }
 
@@ -96,6 +96,15 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
         }
 
         header h1 {
@@ -112,6 +121,42 @@
             font-size: 2.4rem;
             color: #007bff;
             text-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+        }
+
+        /* Contact Support Button */
+        .call-button {
+            background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+            background-size: 200% 200%;
+            color: #ffffff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .call-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+            animation: gradientShift 3s ease infinite;
+        }
+
+        .call-button:active {
+            transform: translateY(0);
+        }
+
+        .call-button::before {
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            content: '\f095';
+            font-size: 1.1rem;
         }
 
         /* Main Container */
@@ -150,48 +195,6 @@
             animation: scaleIn 0.8s ease-out;
         }
 
-        /* Stats Overview */
-        .stats-overview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2.5rem;
-            animation: fadeInUp 0.8s ease-out 0.2s backwards;
-        }
-
-        .stat-card {
-            background: rgba(50, 50, 50, 0.5);
-            border-radius: 10px;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            border-left: 3px solid #007bff;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .stat-card i {
-            font-size: 2rem;
-            color: #007bff;
-            margin-bottom: 0.8rem;
-        }
-
-        .stat-card h3 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.3rem;
-            color: #ffffff;
-        }
-
-        .stat-card p {
-            color: #b0b0b0;
-            font-size: 0.9rem;
-        }
-
         /* Welcome Message */
         .welcome-message {
             margin: 0 0 2.5rem 0;
@@ -217,17 +220,42 @@
             font-weight: 600;
         }
 
+        /* Platform Selection */
+        .platform-selection {
+            margin: 2rem 0;
+            animation: fadeInUp 0.8s ease-out 0.3s backwards;
+        }
+
+        .platform-selection h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+            text-align: center;
+            position: relative;
+        }
+
+        .platform-selection h2::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #007bff;
+            border-radius: 3px;
+        }
+
         /* Button Group */
-        .button-group {
+        .platform-list {
             display: flex;
             gap: 1.5rem;
             flex-wrap: wrap;
             justify-content: center;
-            margin-top: 2rem;
             animation: fadeInUp 0.8s ease-out 0.4s backwards;
         }
 
-        .button-group a {
+        .platform-list a {
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -248,55 +276,49 @@
             overflow: hidden;
         }
 
-
-
-
-        .button-group a:hover {
+        .platform-list a:hover {
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
             animation: gradientShift 3s ease infinite;
         }
 
-        .button-group a:active {
+        .platform-list a:active {
             transform: translateY(-1px);
         }
 
         /* Platform-specific styling */
-        .button-group a.youtube {
+        .platform-list a.youtube {
             background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
             box-shadow: 0 4px 15px rgba(255, 0, 0, 0.3);
         }
 
-        .button-group a.youtube:hover {
+        .platform-list a.youtube:hover {
             box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
         }
 
-        .button-group a.instagram {
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-            box-shadow: 0 4px 15px rgba(220, 39, 67, 0.3);
-        }
-
-        .button-group a.instagram:hover {
-            box-shadow: 0 6px 20px rgba(220, 39, 67, 0.4);
-        }
-
-        .button-group a.reddit {
+        .platform-list a.reddit {
             background: linear-gradient(135deg, #ff4500 0%, #d13400 100%);
             box-shadow: 0 4px 15px rgba(255, 69, 0, 0.3);
         }
 
-        .button-group a.reddit:hover {
+        .platform-list a.reddit:hover {
             box-shadow: 0 6px 20px rgba(255, 69, 0, 0.4);
         }
 
-        /* Remove button styling inside anchor */
-        .button-group a button {
-            background: none;
-            border: none;
-            color: inherit;
-            font: inherit;
-            padding: 0;
-            cursor: pointer;
+        /* Platform Icons */
+        .platform-list a::before {
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-right: 12px;
+            font-size: 1.3rem;
+        }
+
+        .platform-list a[href*="youtube"]::before {
+            content: '\f167';
+        }
+
+        .platform-list a[href*="reddit"]::before {
+            content: '\f1a1';
         }
 
         /* Recent Activity */
@@ -312,38 +334,39 @@
             text-align: center;
             position: relative;
             display: inline-block;
+            width: 100%;
         }
 
         .recent-activity h2::after {
             content: "";
             position: absolute;
             bottom: -8px;
-            left: 0;
-            width: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
             height: 3px;
             background: #007bff;
             border-radius: 3px;
         }
 
-        .activity-list {
-            list-style: none;
-        }
-
+        /* Activity Items */
         .activity-item {
             background: rgba(50, 50, 50, 0.5);
             border-radius: 8px;
-            padding: 1rem 1.5rem;
+            padding: 1.5rem;
             margin-bottom: 1rem;
             display: flex;
             align-items: center;
             transition: all 0.3s ease;
             border-left: 3px solid transparent;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .activity-item:hover {
             transform: translateX(5px);
             background: rgba(60, 60, 60, 0.6);
             border-left-color: #007bff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .activity-item:nth-child(2):hover {
@@ -351,7 +374,7 @@
         }
 
         .activity-item:nth-child(3):hover {
-            border-left-color: #e4405f;
+            border-left-color: #ff4500;
         }
 
         .activity-icon {
@@ -373,27 +396,30 @@
         }
 
         .activity-item:nth-child(3) .activity-icon {
-            background: rgba(228, 64, 95, 0.2);
-            color: #e4405f;
+            background: rgba(255, 69, 0, 0.2);
+            color: #ff4500;
         }
 
         .activity-content {
             flex: 1;
         }
 
-        .activity-content h4 {
-            font-size: 1rem;
+        .activity-content h3 {
+            font-size: 1.1rem;
             margin-bottom: 0.3rem;
+            color: #ffffff;
         }
 
         .activity-content p {
             font-size: 0.9rem;
             color: #b0b0b0;
+            margin-bottom: 0.3rem;
         }
 
         .activity-time {
             font-size: 0.8rem;
             color: #888888;
+            margin-left: auto;
         }
 
         /* Footer */
@@ -426,28 +452,13 @@
             background-color: #007bff;
         }
 
-        /* Platform Icons */
-        .button-group a::before {
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            margin-right: 12px;
-            font-size: 1.3rem;
-        }
-
-        .button-group a.youtube::before {
-            content: '\f167';
-        }
-
-        .button-group a.instagram::before {
-            content: '\f16d';
-        }
-
-        .button-group a.reddit::before {
-            content: '\f1a1';
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
             header h1 {
                 font-size: 1.8rem;
             }
@@ -464,27 +475,44 @@
                 font-size: 1.6rem;
             }
 
-            .button-group {
+            .platform-list {
                 flex-direction: column;
                 gap: 1rem;
+                align-items: center;
             }
 
-            .button-group a {
+            .platform-list a {
                 width: 100%;
                 max-width: 300px;
             }
 
-            .stats-overview {
-                grid-template-columns: 1fr;
+            .activity-item {
+                flex-direction: column;
+                text-align: left;
+                gap: 0.5rem;
+            }
+
+            .activity-icon {
+                margin-right: 0;
+                margin-bottom: 0.5rem;
+            }
+
+            .activity-time {
+                margin-left: 0;
+                align-self: flex-start;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <i class="fas fa-chart-line logo"></i>
-        <h1>Feed Back Tracker Dashboard</h1>
+        <div class="header-content">
+            <i class="fas fa-chart-line logo"></i>
+            <h1>Feed Back Tracker Dashboard</h1>
+        </div>
+        <button class="call-button" onclick="initiateCall()">Contact Support</button>
     </header>
+
     <div class="container">
         <div class="dashboard-card">
             <div class="welcome-message">
@@ -492,60 +520,75 @@
                 <p>Your content analysis dashboard is ready</p>
             </div>
 
-            
+            <section class="platform-selection">
+                <h2>Select a platform to analyze your content:</h2>
+                <div class="platform-list">
+                    <a href="{{ url_for('youtube') }}" class="youtube">YouTube</a>
+                    <a href="{{ url_for('youtube') }}" class="youtube">Businesses</a>
+                    <a href="{{ url_for('reddit_input') }}" class="reddit">Reddit</a>
+                </div>
+            </section>
 
-            <div class="welcome-message">
-                <p>Select a platform to analyze your content:</p>
-            </div>
-            
-            <div class="button-group">
-                <a href="{{ url_for('youtube') }}" class="youtube">
-                    
-                    YouTube
-                </a>
-                <a href="#" class="instagram">Twitter X</a>
-                <a href="{{ url_for('reddit_input') }}" class="reddit">Reddit</a>
-            </div>
-
-            <div class="recent-activity">
+            <section class="recent-activity">
                 <h2>Recent Activity</h2>
-                <ul class="activity-list">
-                    <li class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fab fa-reddit"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h4>Reddit Analysis Completed</h4>
-                            <p>Sentiment analysis for r/technology post completed</p>
-                        </div>
-                        <div class="activity-time">2 hours ago</div>
-                    </li>
-                    <li class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fab fa-youtube"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h4>YouTube Comments Analyzed</h4>
-                            <p>Processed 124 comments from your latest video</p>
-                        </div>
-                        <div class="activity-time">Yesterday</div>
-                    </li>
-                    <li class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fab fa-instagram"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h4>X Account Connected</h4>
-                            <p>Successfully linked your X business account</p>
-                        </div>
-                        <div class="activity-time">3 days ago</div>
-                    </li>
-                </ul>
-            </div>
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fab fa-reddit"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h3>Reddit Analysis Completed</h3>
+                        <p>Sentiment analysis for r/technology post completed</p>
+                    </div>
+                    <span class="activity-time">2 hours ago</span>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fab fa-youtube"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h3>YouTube Comments Analyzed</h3>
+                        <p>Processed 124 comments from your latest video</p>
+                    </div>
+                    <span class="activity-time">Yesterday</span>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">
+                        <i class="fab fa-twitter"></i>
+                    </div>
+                    <div class="activity-content">
+                        <h3>X Account Connected</h3>
+                        <p>Successfully linked your X business account</p>
+                    </div>
+                    <span class="activity-time">3 days ago</span>
+                </div>
+            </section>
         </div>
     </div>
+
     <footer>
-        <p>&copy; 2024 Feed Back Tracker. <a href="{{ url_for('logout') }}">Logout</a></p>
+        <p>© 2024 Feed Back Tracker. <a href="{{ url_for('logout') }}">Logout</a></p>
     </footer>
+
+    <script>
+        function initiateCall() {
+            fetch('/initiate_call', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Call initiated successfully! Our agent will contact you shortly.');
+                } else {
+                    alert('Failed to initiate call: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error initiating call: ' + error.message);
+            });
+        }
+    </script>
 </body>
 </html>

@@ -25,6 +25,7 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 import requests
 import time
+from omnidimension import Client
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -146,7 +147,6 @@ def get_comments(youtube, video_id, max_comments=500):
                         comments.append(comment_text)
                         comments_fetched += 1
                         
-                        # Check for question comments
                         comment_lower = comment_text.lower()
                         is_question = (
                             any(comment_lower.strip().startswith(word) for word in question_words) or
@@ -157,14 +157,12 @@ def get_comments(youtube, video_id, max_comments=500):
                             question_comments.append(comment_text)
                             question_comment_ids.append(comment_id)
                         else:
-                            # Check for abusive comments with word boundaries
                             for abusive_word in abusive_words_hindi:
                                 if re.search(abusive_word, comment_lower, re.IGNORECASE):
                                     abusive_comments.append(comment_text)
                                     abusive_comment_ids.append(comment_id)
                                     break
                         
-                        # Check for spam
                         if author_id in user_comments:
                             if comment_text in user_comments[author_id]:
                                 spam_count += 1
@@ -178,7 +176,7 @@ def get_comments(youtube, video_id, max_comments=500):
 
                     next_page_token = response.get('nextPageToken')
                     logger.debug(f"Fetched {comments_fetched} comments so far. Next page token: {next_page_token}")
-                    break  # Successful fetch, exit retry loop
+                    break
 
                 except HttpError as e:
                     logger.error(f"HTTP error fetching comments (attempt {attempt + 1}/{retries}): {e}")
@@ -191,7 +189,7 @@ def get_comments(youtube, video_id, max_comments=500):
                     if attempt == retries - 1:
                         error_message = f"Failed to fetch comments after {retries} attempts: {str(e)}"
                         return comments, question_comments, abusive_comments, question_comment_ids, abusive_comment_ids, spam_count, error_message
-                    time.sleep(1)  # Wait before retrying
+                    time.sleep(1)
                 except requests.exceptions.RequestException as e:
                     logger.error(f"Network error fetching comments (attempt {attempt + 1}/{retries}): {e}")
                     if attempt == retries - 1:
@@ -312,7 +310,6 @@ def summarize_comments(comments, question_comments, abusive_comments, question_c
     return summary_text, comment_data
 
 def get_frequent_words(comments, n=10):
-    # Combine English and Hindi stopwords, excluding meaningful words
     stop_words = set(stopwords.words('english')).difference({
         'video', 'content', 'subscribe', 'channel', 'like', 'love', 'great', 'good', 'awesome'
     }).union(set(hindi_stopwords))
@@ -326,16 +323,14 @@ def get_frequent_words(comments, n=10):
     
     for i, comment in enumerate(comments):
         try:
-            # Clean comment: remove URLs, emojis, and excessive punctuation
-            comment = re.sub(r'http\S+|www\S+', '', comment.lower())  # Remove URLs
-            comment = re.sub(r'[^\w\s]', '', comment)  # Remove punctuation
-            comment = re.sub(r'\s+', ' ', comment).strip()  # Normalize spaces
+            comment = re.sub(r'http\S+|www\S+', '', comment.lower())
+            comment = re.sub(r'[^\w\s]', '', comment)
+            comment = re.sub(r'\s+', ' ', comment).strip()
             if not comment:
                 logger.debug(f"Comment {i+1} empty after cleaning, skipping")
                 continue
             tokens = word_tokenize(comment)
             total_tokens += len(tokens)
-            # Filter words: alphanumeric, length >= 2, not in stopwords
             words = []
             for word in tokens:
                 if word in stop_words:
@@ -357,14 +352,11 @@ def get_frequent_words(comments, n=10):
             logger.error(f"Error processing comment {i+1} for frequent words: {e}")
             continue
     
-    # Log word counts before filtering
     logger.debug(f"Total tokens: {total_tokens}, Total words after filtering: {total_words}, Unique words: {len(word_counter)}")
     logger.debug(f"Word counter: {dict(word_counter.most_common(20))}")
     
-    # Get top n words, with a fallback if fewer than n words are available
     top_words = [(word, count) for word, count in word_counter.most_common(n)] if word_counter else []
     
-    # Fallback: if no words, return a minimal list for testing
     if not top_words and comments:
         logger.warning("No frequent words found. Using fallback word list.")
         top_words = [('video', 1), ('comment', 1), ('content', 1)]
@@ -513,7 +505,6 @@ def analyze_comments():
                                  frequent_words=[],
                                  error="An unexpected error occurred while fetching comments.")
 
-        # If no comments or partial comments, proceed with what’s available
         if not comments:
             logger.warning(f"No comments fetched for video ID: {video_id}")
             return render_template('results.html',
@@ -588,7 +579,7 @@ def analyze_comments():
             logger.debug(f"Frequent words generated: {frequent_words}")
         except Exception as e:
             logger.error(f"Error getting frequent words: {e}")
-            frequent_words = [('video', 1), ('comment', 1), ('content', 1)]  # Fallback
+            frequent_words = [('video', 1), ('comment', 1), ('content', 1)]
             error_message = "Failed to analyze frequent words."
 
         try:
@@ -624,7 +615,6 @@ def analyze_comments():
                             frequent_words=frequent_words,
                             error=error_message if 'error_message' in locals() else None)
 
-    # Handle GET requests
     if 'last_video_id' in session:
         try:
             credentials = Credentials(**session['credentials'])
@@ -645,7 +635,6 @@ def analyze_comments():
                                      frequent_words=[],
                                      error=error_message)
             
-            # Process available comments
             if not comments:
                 return render_template('results.html',
                                      plot_url=None,
@@ -753,6 +742,36 @@ def debug_comments():
     frequent_words = get_frequent_words(sample_comments, n=10)
     logger.debug(f"Debug frequent words: {frequent_words}")
     return jsonify({'summary': summary, 'comment_data': comment_data, 'frequent_words': frequent_words})
+
+@app.route('/initiate_call', methods=['POST'])
+def initiate_call():
+    logger.debug("Accessing initiate_call route")
+    if 'email' not in session:
+        logger.warning("Unauthorized call initiation attempt")
+        return jsonify({'success': False, 'error': 'You must be logged in to initiate a call'}), 401
+    
+    try:
+        # Set API key
+        api_key = "8wQi12T6vtcRnxALfIkC3PDa5kAJrllNR1DwEgvf-GE"
+        client = Client(api_key)
+
+        # Define agent and number
+        agent_id = 2516
+        to_number = "+919210034977"
+
+        # Dispatch the call
+        response = client.call.dispatch_call(agent_id, to_number)
+        logger.info(f"Call dispatched: Agent ID {agent_id}, To {to_number}, Response: {response}")
+        return jsonify({'success': True, 'message': 'Call initiated successfully'})
+    except Exception as e:
+        logger.error(f"Error initiating call: {e}")
+        error_message = str(e)
+        if '404' in error_message.lower() or 'agent not found' in error_message.lower():
+            return jsonify({'success': False, 'error': 'Invalid agent ID or API configuration. Please contact support.'}), 400
+        elif '401' in error_message.lower() or 'access denied' in error_message.lower():
+            return jsonify({'success': False, 'error': 'Authentication failed with the telephony API.'}), 401
+        else:
+            return jsonify({'success': False, 'error': f'Failed to initiate call: {error_message}'}), 500
 
 async def fetch_comments(post_id):
     reddit = asyncpraw.Reddit(
