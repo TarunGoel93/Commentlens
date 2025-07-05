@@ -15,3 +15,4 @@ aiohttp
 prawcore
 google-auth-httplib2
 httplib2
+scikit-learn
