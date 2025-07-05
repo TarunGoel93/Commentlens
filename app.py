@@ -815,6 +815,57 @@ async def fetch_comments(post_id):
         await reddit.close()
     return comments, spam_count
 
+
+    
+@app.route('/login/callback')
+def login_callback():
+    # Get the authorization code from Google
+    code = request.args.get("code")
+    if not code:
+        return "Error: Missing authorization code"
+
+    # Load client secrets
+    with open("client_secret.json") as f:
+        client_config = json.load(f)["web"]
+
+    # Exchange code for tokens
+    token_url = "https://oauth2.googleapis.com/token"
+    redirect_uri = client_config["redirect_uris"][0]
+
+    data = {
+        "code": code,
+        "client_id": client_config["client_id"],
+        "client_secret": client_config["client_secret"],
+        "redirect_uri": redirect_uri,
+        "grant_type": "authorization_code"
+    }
+
+    r = requests.post(token_url, data=data)
+    if r.status_code != 200:
+        return f"Failed to get token: {r.text}"
+
+    tokens = r.json()
+    access_token = tokens["access_token"]
+
+    # Use the token to get user info
+    userinfo_response = requests.get(
+        "https://www.googleapis.com/oauth2/v2/userinfo",
+        headers={"Authorization": f"Bearer {access_token}"}
+    )
+    if userinfo_response.status_code != 200:
+        return f"Failed to fetch user info: {userinfo_response.text}"
+
+    user_info = userinfo_response.json()
+    email = user_info.get("email")
+    name = user_info.get("name")
+
+    # Store user info in session
+    session["email"] = email
+    session["name"] = name
+
+    return f"Welcome, {name}! You have successfully logged in with {email}."
+
+
 @app.route('/reddit_input')
 def reddit_input():
     logger.debug("Rendering reddit_input.html")
