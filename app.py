@@ -923,5 +923,7 @@ def reddit_analysis():
         return render_template('reddit_input.html', error="Error processing Reddit post")
 
 if __name__ == '__main__':
-    logger.info("Starting Flask application")
-    app.run('localhost', 5000, debug=True)
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    logger.info(f"Starting Flask application on port {port}")
+    app.run(host="0.0.0.0", port=port)
