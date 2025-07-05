@@ -11,3 +11,7 @@ nest_asyncio
 nltk
 requests
 omnidimension
+aiohttp
+prawcore
+google-auth-httplib2
+httplib2
