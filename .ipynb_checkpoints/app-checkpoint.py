@@ -17,7 +17,7 @@ os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
-app.secret_key = os.urandom(24)  # Use a securely generated key
+app.secret_key = os.urandom(24)  
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
