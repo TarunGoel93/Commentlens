@@ -435,7 +435,9 @@ def youtube():
 def authorize():
     logger.debug("Initiating YouTube authorization")
     flow = Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES)
+    print("Redirect URI:", flow.redirect_uri)
     flow.redirect_uri = url_for('oauth2callback', _external=True)
+    print("Redirect URI:", flow.redirect_uri)
     authorization_url, state = flow.authorization_url()
     session['state'] = state
     return redirect(authorization_url)
