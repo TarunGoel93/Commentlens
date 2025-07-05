@@ -29,7 +29,7 @@ from omnidimension import Client
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 # Ensure NLTK data is available
 def ensure_nltk_data():
@@ -435,9 +435,8 @@ def youtube():
 def authorize():
     logger.debug("Initiating YouTube authorization")
     flow = Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES)
-    print("Redirect URI:", flow.redirect_uri)
     flow.redirect_uri = url_for('oauth2callback', _external=True)
-    print("Redirect URI:", flow.redirect_uri)
+    logger.debug(f"Redirect URI set to: {flow.redirect_uri}")
     authorization_url, state = flow.authorization_url()
     session['state'] = state
     return redirect(authorization_url)
