@@ -444,40 +444,19 @@ def authorize():
 @app.route('/oauth2callback')
 def oauth2callback():
     logger.debug("Handling OAuth2 callback")
-
-    # Restore state and initialize the flow
-    state = session.get('state')
-    flow = Flow.from_client_secrets_file(
-        CLIENT_SECRETS_FILE,
-        scopes=SCOPES,
-        state=state
-    )
+    state = session['state']
+    flow = Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
     flow.redirect_uri = url_for('oauth2callback', _external=True)
-
-    # Fetch the token from the authorization response
     authorization_response = request.url
     try:
         flow.fetch_token(authorization_response=authorization_response)
     except Exception as e:
         logger.error(f"Error fetching OAuth token: {e}")
         return render_template('youtube.html', error="Failed to authenticate with YouTube. Please try again.")
-
-    # Save the credentials in the session
     credentials = flow.credentials
-    session['credentials'] = {
-        'token': credentials.token,
-        'refresh_token': credentials.refresh_token,
-        'token_uri': credentials.token_uri,
-        'client_id': credentials.client_id,
-        'client_secret': credentials.client_secret,
-        'scopes': credentials.scopes
-    }
-
+    session['credentials'] = credentials_to_dict(credentials)
     logger.info("YouTube authorization successful")
-    
-    # Redirect to a safe GET route (avoid POST routes like analyze_comments)
-    return redirect(url_for('youtube'))  # or your dashboard page
-
+    return redirect(url_for('analyze_comments'))
 
 @app.route('/analyze_comments', methods=['GET', 'POST'])
 def analyze_comments():
