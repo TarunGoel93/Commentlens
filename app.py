@@ -28,16 +28,24 @@ import time
 from omnidimension import Client
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
-# Check NLTK data availability
-try:
-    nltk.data.find('tokenizers/punkt')
-    nltk.data.find('corpora/stopwords')
-except LookupError:
-    logger.error("NLTK data missing. Please run: python -c \"import nltk; nltk.download('punkt'); nltk.download('stopwords')\"")
-    raise
+# Ensure NLTK data is available
+def ensure_nltk_data():
+    try:
+        nltk.data.find('tokenizers/punkt')
+    except LookupError:
+        logger.warning("Downloading punkt...")
+        nltk.download('punkt')
+    
+    try:
+        nltk.data.find('corpora/stopwords')
+    except LookupError:
+        logger.warning("Downloading stopwords...")
+        nltk.download('stopwords')
+
+ensure_nltk_data()
 
 # Define Hindi abusive words with regex word boundaries
 abusive_words_hindi = [
